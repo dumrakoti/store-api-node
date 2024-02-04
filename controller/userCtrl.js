@@ -1,6 +1,7 @@
 const { generateToken } = require('../config/jwtToken');
 const User = require('./../models/userModel');
 const asyncHandler = require('express-async-handler');
+const validateMongoDbId = require('./../utils/validateMongodbId');
 
 // register user
 const registerUser = asyncHandler(async (req, res) => {
@@ -38,6 +39,7 @@ const loginUser = asyncHandler(async (req, res) => {
 // update a user
 const updateUser = asyncHandler(async (req, res) => {
   const { _id } = req.user;
+  validateMongoDbId(_id);
   try {
     const updatedUser = await User.findByIdAndUpdate(_id, {
       firstname: req?.body?.firstname,
@@ -64,6 +66,7 @@ const getAllUser = asyncHandler(async (req, res) => {
 // get single user
 const getUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  validateMongoDbId(id);
   try {
     const isUser = await User.findById(id);
     if (isUser) {
@@ -86,6 +89,7 @@ const getUser = asyncHandler(async (req, res) => {
 // delete user
 const deleteUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  validateMongoDbId(id);
   try {
     const deleteUser = await User.findByIdAndDelete(id);
     if (deleteUser) {
@@ -98,11 +102,41 @@ const deleteUser = asyncHandler(async (req, res) => {
   }
 });
 
+// block user
+const blockUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoDbId(id);
+  try {
+    const block = await User.findByIdAndUpdate(id, {
+      isBlocked: true
+    }, { new: true });
+    res.status(200).json({ message: 'User blocked.', data: block });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+// unblock user
+const unblockUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateMongoDbId(id);
+  try {
+    const unblock = await User.findByIdAndUpdate(id, {
+      isBlocked: false
+    }, { new: true });
+    res.status(200).json({ message: 'User unblocked.', data: unblock });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 module.exports = {
   registerUser,
   loginUser,
   getAllUser,
   getUser,
   deleteUser,
-  updateUser
+  updateUser,
+  blockUser,
+  unblockUser
 };

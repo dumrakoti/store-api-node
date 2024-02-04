@@ -7,7 +7,9 @@ const {
   getAllUser,
   getUser,
   deleteUser,
-  updateUser
+  updateUser,
+  blockUser,
+  unblockUser
 } = require('./../controller/userCtrl');
 
 const { authMiddleware, isAdmin } = require('../middlewares/authMiddleware');
@@ -18,5 +20,7 @@ router.get('/all/users', authMiddleware, isAdmin, getAllUser);
 router.get('/:id', authMiddleware, getUser);
 router.delete('/:id', authMiddleware, isAdmin, deleteUser);
 router.put('/update', authMiddleware, updateUser);
+router.put('/block/:id', authMiddleware, isAdmin, blockUser);
+router.put('/unblock/:id', authMiddleware, isAdmin, unblockUser);
 
 module.exports = router;
